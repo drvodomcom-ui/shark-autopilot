@@ -1,30 +1,20 @@
-# Shark Mindset Autopilot (@20shark26)
+# SHARK MINDSET Autopilot (@20shark26)
 
-Ovaj sistem automatski generiše, dizajnira i zakazuje 5 objava dnevno na Instagramu koristeći AI i GitHub Actions.
+Besplatan sistem koji sam pravi i zakazuje objave na Instagramu, i dok je laptop ugašen.
 
-## Kako funkcioniše
-1. **GitHub Actions** se pokreće svakog jutra u 05:00.
-2. **AI (Gemini/Groq)** smišlja 5 tema i tekstova na srpskom jeziku.
-3. **Python (Pillow)** kreira slike sa naslovima i logotipom.
-4. **Buffer API** zakazuje objave u određeno vreme (08:00, 11:30, 14:30, 18:00, 21:00).
+## Kako radi
+- **GitHub Actions** se pokreće 3 puta dnevno (oko 05:00, 12:00 i 17:00 po Beogradu).
+- **Gemini** (rezerva: **Groq**) piše 5 objava: 08:00 motivacija, 11:30 novac, 14:30 prodaja, 18:00 psihologija biznisa, 21:00 večernji izazov.
+- **Pillow** pravi brendirane slike 1080x1350, koje se čuvaju u folderu `posts/`.
+- **Buffer** (besplatni plan, max 10 objava u redu) dobija onoliko objava koliko ima slobodnih mesta; ostale čekaju sledeće pokretanje.
+- `history.json` pamti teme da se ne ponavljaju, a `queue.json` čuva status svake objave.
 
-## Konfiguracija
-Sve postavke se nalaze u `main.py`:
-- `POST_TYPES`: Vremena i tipovi objava.
-- `accent_colors`: Boje koje se koriste za dizajn.
-- `history.json`: Čuva istoriju da se teme ne bi ponavljale.
+## Potrebno (Settings → Secrets and variables → Actions)
+`GEMINI_API_KEY`, `GROQ_API_KEY`, `BUFFER_API_KEY`, `BUFFER_CHANNEL_ID`.
+Repo mora biti **javan**, da bi Buffer mogao da preuzme slike.
 
-## Pauziranje
-Da biste pauzirali sistem, idite na **GitHub Repo -> Actions -> Shark Mindset Autopilot -> Disable workflow**.
-
-## Ručno pokretanje
-Idite na **GitHub Repo -> Actions -> Shark Mindset Autopilot -> Run workflow**.
-
-## Potrebni Secret-i
-- `GEMINI_API_KEY`
-- `GROQ_API_KEY`
-- `BUFFER_API_KEY`
-- `BUFFER_CHANNEL_ID`
-
----
-🤖 Generisano pomoću [Claude Code](https://claude.com/claude-code)
+## Upravljanje
+- **Ručno pokretanje:** Actions → Shark Mindset Autopilot → Run workflow
+- **Pauza:** Actions → Shark Mindset Autopilot → ⋯ → Disable workflow
+- **Probni režim:** Settings → Secrets and variables → Actions → Variables → `DRY_RUN` = `true`
+- **Termini i teme:** lista `SLOTS` u `main.py`
