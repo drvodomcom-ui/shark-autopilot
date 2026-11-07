@@ -1,0 +1,6 @@
+pillow
+google-generativeai
+groq
+requests
+python-dotenv
+pytz
