@@ -102,57 +102,148 @@ Vrati ISKLJUČIVO validan JSON ovog oblika, bez ikakvog drugog teksta:
 {{"posts": [{{"key": "motivacija", "title": "...", "caption": "...", "topic": "..."}}, ...]}}"""
 
 
+GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
+_gemini_cache = {}
+
+
+def _gemini_auth(mode):
+    """Dva načina slanja ključa: header (novi AQ. ključevi) i ?key= (stari AIza ključevi)."""
+    return ({"x-goog-api-key": GEMINI_KEY}, {}) if mode == "header" else ({}, {"key": GEMINI_KEY})
+
+
+def _version_score(name):
+    nums = [float(x) for x in re.findall(r"\d+(?:\.\d+)?", name)]
+    return nums[0] if nums else 0.0
+
+
+def gemini_models():
+    """Sam pronalazi Gemini modele koji trenutno postoje za ovaj ključ (Google ih često gasi)."""
+    if "list" in _gemini_cache:
+        return _gemini_cache["list"]
+    found, auth_ok = [], "header"
+    for mode in ("header", "param"):
+        try:
+            headers, params = _gemini_auth(mode)
+            names, token = [], None
+            for _ in range(10):
+                p = dict(params, pageSize=200, **({"pageToken": token} if token else {}))
+                r = requests.get(f"{GEMINI_BASE}/models", headers=headers, params=p, timeout=60)
+                if r.status_code != 200:
+                    print(f"Gemini lista modela ({mode}): HTTP {r.status_code} {r.text[:150]}")
+                    names = []
+                    break
+                data = r.json()
+                for m in data.get("models", []):
+                    if "generateContent" in m.get("supportedGenerationMethods", []):
+                        names.append(m["name"].split("/", 1)[-1])
+                token = data.get("nextPageToken")
+                if not token:
+                    break
+            if names:
+                found, auth_ok = names, mode
+                break
+        except Exception as e:  # noqa: BLE001
+            print(f"Gemini lista modela ({mode}) greška: {e}")
+    bad = ("image", "tts", "audio", "embedding", "live", "vision", "aqa", "gemma", "robotics", "computer")
+    text_models = [n for n in found if not any(b in n for b in bad)]
+    flash = [n for n in text_models if "flash" in n and "lite" not in n]
+    lite = [n for n in text_models if "flash" in n and "lite" in n]
+    flash.sort(key=lambda n: (_version_score(n), "preview" not in n and "exp" not in n), reverse=True)
+    lite.sort(key=_version_score, reverse=True)
+    ordered = flash + lite + [n for n in text_models if n not in flash and n not in lite and "pro" not in n]
+    if not ordered:  # ako lista ne radi, probaj poznate aliase
+        ordered = ["gemini-flash-latest", "gemini-3-flash-preview", "gemini-flash-lite-latest"]
+    print(f"Gemini modeli za pokušaj: {ordered[:5]} (auth: {auth_ok})")
+    _gemini_cache["list"] = (ordered[:5], auth_ok)
+    return _gemini_cache["list"]
+
+
 def call_gemini(prompt):
     if not GEMINI_KEY:
         return None
-    for model in ["gemini-flash-latest", "gemini-2.5-flash", "gemini-2.0-flash"]:
-        try:
-            r = requests.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-                headers={"x-goog-api-key": GEMINI_KEY},
-                json={
-                    "contents": [{"parts": [{"text": prompt}]}],
-                    "generationConfig": {"responseMimeType": "application/json", "temperature": 0.9},
-                },
-                timeout=120,
-            )
-            if r.status_code != 200:
-                print(f"Gemini {model}: HTTP {r.status_code} {r.text[:200]}")
-                continue
-            return r.json()["candidates"][0]["content"]["parts"][0]["text"]
-        except Exception as e:  # noqa: BLE001
-            print(f"Gemini {model} greška: {e}")
+    models, auth = gemini_models()
+    for model in models:
+        for mode in dict.fromkeys([auth, "param" if auth == "header" else "header"]):
+            try:
+                headers, params = _gemini_auth(mode)
+                r = requests.post(
+                    f"{GEMINI_BASE}/models/{model}:generateContent",
+                    headers=headers, params=params,
+                    json={
+                        "contents": [{"parts": [{"text": prompt}]}],
+                        "generationConfig": {"responseMimeType": "application/json", "temperature": 0.9},
+                    },
+                    timeout=180,
+                )
+                if r.status_code in (401, 403):
+                    print(f"Gemini {model} ({mode}): HTTP {r.status_code}")
+                    continue
+                if r.status_code != 200:
+                    print(f"Gemini {model}: HTTP {r.status_code} {r.text[:200]}")
+                    break
+                parts = r.json()["candidates"][0]["content"]["parts"]
+                text = "".join(p.get("text", "") for p in parts if not p.get("thought"))
+                if text.strip():
+                    print(f"Tekst napisao Gemini: {model}")
+                    return text
+            except Exception as e:  # noqa: BLE001
+                print(f"Gemini {model} greška: {e}")
+                break
     return None
+
+
+def groq_models():
+    preferred = ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "moonshotai/kimi-k2-instruct",
+                 "qwen/qwen3-32b", "openai/gpt-oss-20b", "llama-3.1-8b-instant"]
+    try:
+        r = requests.get("https://api.groq.com/openai/v1/models",
+                         headers={"Authorization": f"Bearer {GROQ_KEY}"}, timeout=60)
+        if r.status_code == 200:
+            avail = [m["id"] for m in r.json().get("data", []) if m.get("active", True)]
+            skip = ("whisper", "tts", "guard", "playai", "orpheus", "distil", "prompt")
+            avail = [a for a in avail if not any(s in a.lower() for s in skip)]
+            ordered = [p for p in preferred if p in avail] + [a for a in avail if a not in preferred]
+            if ordered:
+                print(f"Groq modeli za pokušaj: {ordered[:5]}")
+                return ordered[:5]
+        print(f"Groq lista modela: HTTP {r.status_code} {r.text[:150]}")
+    except Exception as e:  # noqa: BLE001
+        print(f"Groq lista modela greška: {e}")
+    return preferred
 
 
 def call_groq(prompt):
     if not GROQ_KEY:
         return None
-    for model in ["llama-3.3-70b-versatile", "openai/gpt-oss-120b"]:
-        try:
-            r = requests.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={"Authorization": f"Bearer {GROQ_KEY}"},
-                json={
-                    "model": model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "response_format": {"type": "json_object"},
-                    "temperature": 0.9,
-                },
-                timeout=120,
-            )
-            if r.status_code != 200:
-                print(f"Groq {model}: HTTP {r.status_code} {r.text[:200]}")
-                continue
-            return r.json()["choices"][0]["message"]["content"]
-        except Exception as e:  # noqa: BLE001
-            print(f"Groq {model} greška: {e}")
+    for model in groq_models():
+        for use_json_mode in (True, False):
+            try:
+                body = {"model": model, "messages": [{"role": "user", "content": prompt}], "temperature": 0.8}
+                if use_json_mode:
+                    body["response_format"] = {"type": "json_object"}
+                r = requests.post("https://api.groq.com/openai/v1/chat/completions",
+                                  headers={"Authorization": f"Bearer {GROQ_KEY}"}, json=body, timeout=180)
+                if r.status_code == 400 and use_json_mode:
+                    continue  # probaj isti model bez JSON režima
+                if r.status_code != 200:
+                    print(f"Groq {model}: HTTP {r.status_code} {r.text[:200]}")
+                    break
+                text = r.json()["choices"][0]["message"]["content"] or ""
+                if text.strip():
+                    print(f"Tekst napisao Groq: {model}")
+                    return text
+            except Exception as e:  # noqa: BLE001
+                print(f"Groq {model} greška: {e}")
+                break
     return None
 
 
 def parse_posts(raw):
-    raw = raw.strip()
+    raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.S).strip()
     raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw)
+    start, end = raw.find("{"), raw.rfind("}")
+    if start != -1 and end > start and not raw.lstrip().startswith("["):
+        raw = raw[start:end + 1]
     data = json.loads(raw)
     posts = data["posts"] if isinstance(data, dict) else data
     by_key = {}
