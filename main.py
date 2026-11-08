@@ -29,11 +29,16 @@ BACKLOG_TARGET = int(os.getenv("BACKLOG_TARGET", "10"))          # koliko gotovi
 MIN_LEAD_MINUTES = 20                                            # najranije zakazivanje od sada
 DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"
 
-GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
-GROQ_KEY = os.getenv("GROQ_API_KEY", "")
-BUFFER_KEY = os.getenv("BUFFER_API_KEY", "")
-BUFFER_CHANNEL_ID = os.getenv("BUFFER_CHANNEL_ID", "")
-REPO = os.getenv("GITHUB_REPOSITORY", "")
+def env_clean(name):
+    """Ključ bez razmaka, novih redova i navodnika (česta greška pri lepljenju)."""
+    return "".join(os.getenv(name, "").split()).strip("\"'")
+
+
+GEMINI_KEY = env_clean("GEMINI_API_KEY")
+GROQ_KEY = env_clean("GROQ_API_KEY")
+BUFFER_KEY = env_clean("BUFFER_API_KEY")
+BUFFER_CHANNEL_ID = env_clean("BUFFER_CHANNEL_ID")
+REPO = env_clean("GITHUB_REPOSITORY")
 
 # Termini (beogradsko vreme) i tip objave za svaki termin
 SLOTS = [
@@ -104,7 +109,7 @@ def call_gemini(prompt):
         try:
             r = requests.post(
                 f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-                params={"key": GEMINI_KEY},
+                headers={"x-goog-api-key": GEMINI_KEY},
                 json={
                     "contents": [{"parts": [{"text": prompt}]}],
                     "generationConfig": {"responseMimeType": "application/json", "temperature": 0.9},
