@@ -184,5 +184,17 @@
     "image": "posts/20261108-190352/6-izazov.jpg",
     "status": "pending",
     "created": "2026-11-08T19:03:52.556700+01:00"
+  },
+  {
+    "id": "20261108-190856-vesti",
+    "key": "vesti",
+    "slot": "19:00",
+    "for_slot": "2026-11-08 19:00",
+    "title": "Stroža kontrola kamata i nova pravila za banke",
+    "caption": "🇷🇸 Srbija | NBS uvodi strožu kontrolu kamata na tržištu.\n\nNarodna banka Srbije uvela je nova pravila koja donose stroži nadzor nad kamatnim stopama u bankarskom sektoru. Ova mera menja uslove pod kojima banke poslucuju i plasiraju kredite.\n\nŠta to znači za tebe:\nNova pravila u banci direktno utiču na vaše kredite i način obračuna mesečnih rata.\n\nZapratite profil za vesti i ekonomske analize tokom dana.\nIzvor: Blic\n\n#ekonomija #finansije #srbija #vesti #banke #krediti #kamate #nbs",
+    "topic": "NBS uvodi strožu kontrolu kamata za banke u Srbiji",
+    "image": "posts/20261108-190856/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-08T19:08:56.953084+01:00"
   }
 ]
