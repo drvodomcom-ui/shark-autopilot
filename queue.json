@@ -199,5 +199,17 @@
     "ig_media_id": "18133117873692137",
     "published_slot": "2026-11-08 19:00",
     "published_at": "2026-11-08T19:09:06.458320+01:00"
+  },
+  {
+    "id": "20261108-223745-vesti",
+    "key": "vesti",
+    "slot": "22:00",
+    "for_slot": "2026-11-08 22:00",
+    "title": "Srbija i EU započele pregovore o ukidanju rominga",
+    "caption": "🇷🇸 Srbija / Pokrenuti zvanični pregovori o potpunom ukidanju rominga.\n\nPredstavnici Brisela i Srbije započeli su razgovore koji bi trebalo da dovedu do kraja skupih telefonskih poziva i internet saobraćaja u inostranstvu. Ovaj proces usmeren je na eliminisanje dodatnih troškova za komunikaciju unutar država članica.\n\nŠta to znači za tebe:\nTvoji računi za telefon biće znatno manji prilikom boravka u Evropskoj uniji jer više nećeš plaćati visoke roming tarife za pozive i prenos podataka.\n\nZaprati @20shark26 za najnovije ekonomske vesti tokom dana.\nIzvor: NIN.rs\n\n#ekonomija #vesti #srbija #roming #eu #finansije #telekomunikacije #putovanja #internet #sharkmindset",
+    "topic": "Pregovori o ukidanju rominga između Srbije i EU.",
+    "image": "posts/20261108-223745/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-08T22:37:45.857082+01:00"
   }
 ]
