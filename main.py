@@ -39,6 +39,9 @@ GROQ_KEY = env_clean("GROQ_API_KEY")
 BUFFER_KEY = env_clean("BUFFER_API_KEY")
 BUFFER_CHANNEL_ID = env_clean("BUFFER_CHANNEL_ID")
 REPO = env_clean("GITHUB_REPOSITORY")
+IG_TOKEN = env_clean("IG_ACCESS_TOKEN")
+IG_USER_ID = env_clean("IG_USER_ID")
+PUBLISH_WINDOW_HOURS = 3   # objava za termin ide ako je pokretanje unutar 3h posle termina
 
 # Termini (beogradsko vreme) i tip objave za svaki termin
 SLOTS = [
@@ -46,6 +49,8 @@ SLOTS = [
      "brief": "Jutarnja motivacija: jedna snažna rečenica kao naslov, u opisu kratko objašnjenje i kako je primeniti danas."},
     {"time": "11:30", "key": "novac", "label": "LEKCIJA O NOVCU",
      "brief": "Lekcija o novcu/finansijama: konkretan, primenljiv savet (štednja, ulaganje, dug, budžet, prihod) sa jednostavnim primerom u dinarima ili evrima."},
+    {"time": "13:00", "key": "investiranje", "label": "INVESTIRANJE",
+     "brief": "Investiranje za početnike: jedan jasan princip (štednja, kamata na kamatu, diversifikacija, rizik, nekretnine, zlato, akcije/ETF) objašnjen jednostavno, bez saveta za kupovinu konkretne akcije."},
     {"time": "14:30", "key": "prodaja", "label": "PRODAJA",
      "brief": "Prodaja i pregovaranje: jedna konkretna tehnika i kako je primeniti danas u razgovoru sa kupcem ili šefom."},
     {"time": "18:00", "key": "psihologija", "label": "PSIHOLOGIJA BIZNISA",
@@ -53,12 +58,18 @@ SLOTS = [
     {"time": "21:00", "key": "izazov", "label": "VEČERNJI IZAZOV",
      "brief": "Večernje pitanje ili izazov za publiku koje podstiče komentare; naslov je pitanje."},
 ]
+NEWS_TIMES = ["07:00", "09:00", "10:00", "12:00", "15:30", "16:30", "17:00", "19:00", "20:00", "22:00"]
+REGULAR_SLOTS = list(SLOTS)
+SLOTS = sorted(SLOTS + [{"time": t, "key": "vesti", "label": "EKONOMSKE VESTI", "news": True,
+                         "brief": "Jedna važna ekonomska vest."} for t in NEWS_TIMES], key=lambda x: x["time"])
 ACCENTS = {
     "motivacija": (255, 196, 0),
     "novac": (0, 200, 120),
     "prodaja": (0, 150, 255),
     "psihologija": (190, 90, 255),
     "izazov": (255, 80, 60),
+    "vesti": (230, 230, 235),
+    "investiranje": (255, 140, 0),
 }
 
 
@@ -81,13 +92,13 @@ def now_local():
 
 # ---------------- AI tekst ----------------
 def build_prompt(avoid_topics):
-    slots_txt = "\n".join(f'{i+1}. key="{s["key"]}" — {s["brief"]}' for i, s in enumerate(SLOTS))
+    slots_txt = "\n".join(f'{i+1}. key="{s["key"]}" — {s["brief"]}' for i, s in enumerate(REGULAR_SLOTS))
     avoid = "; ".join(avoid_topics[-80:]) or "nema"
     return f"""Ti si vrhunski kreator sadržaja za Instagram profil @20shark26 „SHARK MINDSET".
 Teme: finansije, prodaja, psihologija biznisa, mindset, disciplina, novac. Publika: šira publika u Srbiji, ne samo preduzetnici.
 Jezik: srpski, LATINICA, sa pravilnim slovima č ć ž š đ. Ton: samouveren, kratak, udarni, „ajkula" mentalitet, bez kliševa, bez lažnih obećanja o brzom bogaćenju.
 
-Napravi tačno 5 objava, po jednu za svaki tip:
+Napravi tačno {len(REGULAR_SLOTS)} objava, po jednu za svaki tip:
 {slots_txt}
 
 Teme koje su VEĆ korišćene i koje NE smeš ponoviti ni sličnim rečima: {avoid}
@@ -252,11 +263,11 @@ def parse_posts(raw):
         title = str(p.get("title", "")).strip()
         caption = str(p.get("caption", "")).strip()
         topic = str(p.get("topic", "")).strip()
-        if k in ACCENTS and title and len(caption) >= 200 and topic:
+        if k in ACCENTS and k != "vesti" and title and len(caption) >= 200 and topic:
             by_key[k] = {"key": k, "title": title, "caption": caption, "topic": topic}
-    if len(by_key) != len(SLOTS):
+    if len(by_key) != len(REGULAR_SLOTS):
         raise ValueError(f"AI je vratio {len(by_key)}/5 ispravnih objava")
-    return [by_key[s["key"]] for s in SLOTS]
+    return [by_key[s["key"]] for s in REGULAR_SLOTS]
 
 
 def generate_texts(avoid_topics):
@@ -354,11 +365,123 @@ def create_image(post, slot, out_path):
     img.save(out_path, "JPEG", quality=92, optimize=True)
 
 
+# ---------------- Ekonomske vesti (Google News RSS) ----------------
+NEWS_FEEDS = [
+    ("Srbija", "https://news.google.com/rss/search?q=ekonomija+OR+privreda+OR+inflacija+OR+dinar+OR+NBS+Srbija+when:1d&hl=sr&gl=RS&ceid=RS:sr"),
+    ("Balkan", "https://news.google.com/rss/search?q=economy+Western+Balkans+OR+Croatia+OR+Bosnia+OR+Montenegro+OR+%22North+Macedonia%22+when:1d&hl=en-US&gl=US&ceid=US:en"),
+    ("Svet", "https://news.google.com/rss/search?q=global+economy+OR+markets+OR+%22central+bank%22+OR+inflation+when:1d&hl=en-US&gl=US&ceid=US:en"),
+]
+
+
+def fetch_news(max_per_feed=8, max_age_hours=36):
+    import xml.etree.ElementTree as ET
+    from email.utils import parsedate_to_datetime
+    items, cutoff = [], datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
+    for region, url in NEWS_FEEDS:
+        try:
+            r = requests.get(url, timeout=30, headers={"User-Agent": "Mozilla/5.0 shark-autopilot"})
+            root = ET.fromstring(r.content)
+            n = 0
+            for it in root.iter("item"):
+                title = (it.findtext("title") or "").strip()
+                src = (it.findtext("source") or "").strip()
+                try:
+                    pub = parsedate_to_datetime(it.findtext("pubDate"))
+                except Exception:  # noqa: BLE001
+                    continue
+                if not title or pub < cutoff:
+                    continue
+                items.append({"region": region, "title": title, "source": src, "date": pub.strftime("%d.%m.%Y")})
+                n += 1
+                if n >= max_per_feed:
+                    break
+        except Exception as e:  # noqa: BLE001
+            print(f"Vesti {region} greška: {e}")
+    print(f"Preuzeto naslova vesti: {len(items)}")
+    return items
+
+
+def build_news_prompt(items, already):
+    lines = "\n".join(f"{i+1}. [{x['region']}] {x['title']} (izvor: {x['source'] or 'nepoznat'}, {x['date']})"
+                      for i, x in enumerate(items))
+    done = "\n".join(f"- {t}" for t in already[-40:]) or "- (još ništa)"
+    return f"""Ti si urednik ekonomskih vesti za Instagram profil @20shark26 „SHARK MINDSET".
+Ispod su naslovi vesti iz poslednjih 24–36 sati. Koristi ISKLJUČIVO informacije iz izabranog naslova — ništa ne izmišljaj, ne dodaj brojeve, imena ni detalje kojih nema u naslovu. Ne kopiraj naslov doslovno, prepričaj ga svojim rečima.
+
+NASLOVI:
+{lines}
+
+VESTI KOJE SU VEĆ OBJAVLJENE (ne ponavljaj ni istu temu drugim rečima):
+{done}
+
+Izaberi JEDNU najvažniju vest koja utiče na ekonomiju ili novčanik ljudi i koja NIJE već objavljena. Prednost: Srbija, pa Balkan, pa svet — ali biraj po važnosti.
+- "title": naslov na slici, najviše 9 reči, bez emotikona.
+- "caption": srpski, LATINICA. Prvi red: oznaka (🇷🇸 Srbija / 🌍 Balkan / 🌐 Svet) i kratak udarni rezime. Zatim 2–3 rečenice šta se desilo, pa red „Šta to znači za tebe:" i 1–2 rečenice. Pa poziv da zaprate profil za vesti tokom dana, red „Izvor: <naziv izvora>", prazan red i 6–10 hashtagova (#ekonomija #vesti #srbija #finansije ...).
+- Ton: neutralan i činjeničan, bez političkih stavova i bez saveta za kupovinu konkretnih akcija.
+- "topic": kratak opis vesti (do 10 reči) za proveru ponavljanja.
+- "pick": redni broj izabranog naslova.
+
+Vrati ISKLJUČIVO validan JSON: {{"pick": 1, "title": "...", "caption": "...", "topic": "..."}}"""
+
+
+def generate_news_post(already):
+    items = fetch_news()
+    if not items:
+        raise RuntimeError("Nema svežih vesti")
+    prompt = build_news_prompt(items, already)
+    for attempt in range(3):
+        for provider in (call_gemini, call_groq):
+            raw = provider(prompt)
+            if not raw:
+                continue
+            try:
+                raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.S)
+                raw = raw[raw.find("{"): raw.rfind("}") + 1]
+                d = json.loads(raw)
+                if d.get("title") and len(d.get("caption", "")) >= 150 and d.get("topic"):
+                    return {"key": "vesti", "title": d["title"].strip(), "caption": d["caption"].strip(),
+                            "topic": d["topic"].strip()}
+            except Exception as e:  # noqa: BLE001
+                print(f"Vesti: neispravan odgovor ({e})")
+        time.sleep(5 * (attempt + 1))
+    raise RuntimeError("AI nije napravio objavu sa vestima")
+
+
+def maybe_generate_news(queue, history):
+    """Vest se pravi tek u svom terminu, da bude sveža."""
+    found = current_slot()
+    if not found or not found[0].get("news"):
+        return False
+    slot, slot_time = found
+    tag = f"{slot_time.date().isoformat()} {slot['time']}"
+    if any(q.get("for_slot") == tag for q in queue):
+        print("Vest za ovaj termin je već napravljena.")
+        return False
+    two_days_ago = (slot_time.date() - timedelta(days=2)).isoformat()
+    already = [h["topic"] for h in history if h.get("key") == "vesti" and h.get("date", "") >= two_days_ago]
+    post = generate_news_post(already)
+    stamp = now_local().strftime("%Y%m%d-%H%M%S")
+    rel = f"{POSTS_DIR}/{stamp}/vesti.jpg"
+    create_image(post, slot, rel)
+    queue.append({"id": f"{stamp}-vesti", "key": "vesti", "slot": slot["time"], "for_slot": tag,
+                  "title": post["title"], "caption": post["caption"], "topic": post["topic"], "image": rel,
+                  "status": "pending", "created": now_local().isoformat()})
+    history.append({"date": slot_time.date().isoformat(), "topic": post["topic"], "key": "vesti"})
+    print(f"Napravljena vest: {post['title']}")
+    return True
+
+
 # ---------------- Komanda: generate ----------------
 def cmd_generate():
     queue = load_json(QUEUE_FILE, [])
     history = load_json(HISTORY_FILE, [])
-    pending = [q for q in queue if q["status"] == "pending"]
+    try:
+        if maybe_generate_news(queue, history):
+            save_json(QUEUE_FILE, queue)
+            save_json(HISTORY_FILE, history)
+    except Exception as e:  # noqa: BLE001
+        print(f"Vesti nisu napravljene ({e}) — u ovom terminu ide obična objava.")
+    pending = [q for q in queue if q["status"] == "pending" and q["key"] != "vesti"]
     if len(pending) >= BACKLOG_TARGET:
         print(f"U rezervi već ima {len(pending)} objava — ne pravim nove.")
         return
@@ -366,7 +489,7 @@ def cmd_generate():
     topics = [h["topic"] for h in history]
     posts = generate_texts(topics)
     stamp = now_local().strftime("%Y%m%d-%H%M%S")
-    for i, (post, slot) in enumerate(zip(posts, SLOTS)):
+    for i, (post, slot) in enumerate(zip(posts, REGULAR_SLOTS)):
         rel = f"{POSTS_DIR}/{stamp}/{i+1}-{post['key']}.jpg"
         create_image(post, slot, rel)
         queue.append({
@@ -478,10 +601,105 @@ def next_due(slot_time, taken):
     raise RuntimeError("Nema slobodnog termina u narednih 30 dana")
 
 
+# ---------------- Instagram (direktno, zvanični API) ----------------
+IG_HOSTS = ["https://graph.facebook.com/v23.0", "https://graph.instagram.com/v23.0"]
+
+
+def ig_call(method, path, **params):
+    last = None
+    for host in IG_HOSTS:
+        try:
+            r = requests.request(method, f"{host}/{path}", params=dict(params, access_token=IG_TOKEN), timeout=90)
+            data = r.json()
+            if r.status_code == 200 and "error" not in data:
+                return data
+            last = data
+            err = data.get("error", {})
+            # ako je pogrešan host za ovaj tip tokena, probaj drugi
+            if err.get("code") in (190, 100, 803) or r.status_code in (400, 401, 404):
+                continue
+            break
+        except Exception as e:  # noqa: BLE001
+            last = {"error": str(e)}
+    raise RuntimeError(f"Instagram API greška: {json.dumps(last)[:400]}")
+
+
+def ig_publish(image_url, caption):
+    container = ig_call("POST", f"{IG_USER_ID}/media", image_url=image_url, caption=caption)["id"]
+    for _ in range(30):  # čekaj da Instagram obradi sliku
+        st = ig_call("GET", container, fields="status_code").get("status_code")
+        if st == "FINISHED":
+            break
+        if st in ("ERROR", "EXPIRED"):
+            raise RuntimeError(f"Instagram nije prihvatio sliku (status {st})")
+        time.sleep(5)
+    return ig_call("POST", f"{IG_USER_ID}/media_publish", creation_id=container)["id"]
+
+
+def current_slot():
+    """Termin čije je vreme prošlo pre manje od PUBLISH_WINDOW_HOURS sati."""
+    now = now_local()
+    best = None
+    for s in SLOTS:
+        h, m = map(int, s["time"].split(":"))
+        t = now.replace(hour=h, minute=m, second=0, microsecond=0)
+        if t <= now < t + timedelta(hours=PUBLISH_WINDOW_HOURS):
+            best = (s, t)
+    return best
+
+
+def cmd_publish():
+    if not (IG_TOKEN and IG_USER_ID):
+        print("Nema IG_ACCESS_TOKEN/IG_USER_ID — direktno objavljivanje je isključeno.")
+        return
+    found = current_slot()
+    if not found:
+        print("Sada nije vreme ni za jedan termin.")
+        return
+    slot, slot_time = found
+    queue = load_json(QUEUE_FILE, [])
+    today = slot_time.date().isoformat()
+    if any(q.get("published_slot") == f"{today} {slot['time']}" for q in queue):
+        print(f"Termin {slot['time']} je već objavljen danas.")
+        return
+    if any(q["status"] == "scheduled" and q.get("due_local", "").startswith(slot_time.strftime("%Y-%m-%dT%H:%M"))
+           for q in queue):
+        print(f"Termin {slot['time']} danas već pokriva Buffer — preskačem.")
+        return
+    candidates = [q for q in queue if q["status"] == "pending" and q["key"] != "vesti"]
+    if slot.get("news"):
+        same_type = [q for q in queue if q["status"] == "pending" and q.get("for_slot") == f"{today} {slot['time']}"]
+        if not same_type:
+            print("Vest za ovaj termin nije napravljena — preskačem (bez zamene običnom objavom).")
+            return
+    else:
+        same_type = [q for q in candidates if q["slot"] == slot["time"]]
+    pick = (same_type or candidates or [None])[0]
+    if not pick:
+        print("Nema gotovih objava u rezervi.")
+        return
+    url = f"https://raw.githubusercontent.com/{REPO}/{git_head_sha()}/{pick['image']}"
+    if not wait_public(url):
+        raise RuntimeError(f"Slika nije javno dostupna: {url}")
+    if DRY_RUN:
+        print(f"[DRY_RUN] Objavio bih sada ({slot['time']}): {pick['title']}")
+        return
+    media_id = ig_publish(url, pick["caption"])
+    pick["status"] = "published"
+    pick["ig_media_id"] = media_id
+    pick["published_slot"] = f"{today} {slot['time']}"
+    pick["published_at"] = now_local().isoformat()
+    save_json(QUEUE_FILE, queue)
+    print(f"Objavljeno na Instagram ({slot['time']}): {pick['title']}")
+
+
 # ---------------- Komanda: schedule ----------------
 def cmd_schedule():
+    if IG_TOKEN and IG_USER_ID:
+        print("Direktno objavljivanje je uključeno — Buffer se ne koristi.")
+        return
     queue = load_json(QUEUE_FILE, [])
-    pending = [q for q in queue if q["status"] == "pending"]
+    pending = [q for q in queue if q["status"] == "pending" and q["key"] != "vesti"]
     if not pending:
         print("Nema objava za zakazivanje.")
         return
@@ -533,8 +751,10 @@ def cmd_preview():
         "prodaja": "Ko postavlja pitanja, taj vodi razgovor",
         "psihologija": "Zašto ljudi više mrze gubitak nego što vole dobitak?",
         "izazov": "Šta bi uradio danas da znaš da ne možeš da pogrešiš?",
+        "investiranje": "Kamata na kamatu je osmo svetsko čudo",
+        "vesti": "NBS zadržala referentnu kamatnu stopu",
     }
-    for i, slot in enumerate(SLOTS):
+    for i, slot in enumerate(REGULAR_SLOTS + [SLOTS[0]]):
         post = {"key": slot["key"], "title": demo[slot["key"]]}
         create_image(post, slot, f"preview/{i+1}-{slot['key']}.jpg")
     print("Probne slike su u folderu preview/")
@@ -542,4 +762,4 @@ def cmd_preview():
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "generate"
-    {"generate": cmd_generate, "schedule": cmd_schedule, "preview": cmd_preview}[cmd]()
+    {"generate": cmd_generate, "schedule": cmd_schedule, "publish": cmd_publish, "preview": cmd_preview}[cmd]()
