@@ -20,3 +20,63 @@ on:
     - cron: '2 19 * * *'   # 20:00 Beograd (zimsko vreme)
     - cron: '2 20 * * *'   # 21:00 Beograd (zimsko vreme)
     - cron: '2 21 * * *'   # 22:00 Beograd (zimsko vreme)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shark-autopilot
+  cancel-in-progress: false
+
+jobs:
+  autopilot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preuzmi kod
+        uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instaliraj biblioteke
+        run: pip install -r requirements.txt
+
+      - name: Napravi nove objave (tekst + slike + vesti)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python main.py generate
+
+      - name: Sačuvaj slike u repo
+        run: |
+          git config user.name "shark-autopilot"
+          git config user.email "actions@users.noreply.github.com"
+          git add posts queue.json history.json
+          git commit -m "Nove objave $(date -u +'%Y-%m-%d %H:%M')" || echo "Nema novih objava"
+          git push
+
+      - name: Objavi direktno na Instagram
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          DRY_RUN: ${{ vars.DRY_RUN || 'false' }}
+        run: python main.py publish
+
+      - name: Zakaži u Buffer-u (samo ako nema Instagram tokena)
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_CHANNEL_ID: ${{ secrets.BUFFER_CHANNEL_ID }}
+          DRY_RUN: ${{ vars.DRY_RUN || 'false' }}
+        run: python main.py schedule
+
+      - name: Sačuvaj status
+        if: always()
+        run: |
+          git add queue.json || true
+          git commit -m "Status $(date -u +'%Y-%m-%d %H:%M')" || echo "Bez promena"
+          git push || true
