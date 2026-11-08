@@ -473,6 +473,9 @@ def maybe_generate_news(queue, history):
 
 # ---------------- Komanda: generate ----------------
 def cmd_generate():
+    if os.path.exists(RUN_SLOT_FILE):
+        os.remove(RUN_SLOT_FILE)
+    current_slot()  # zapamti termin ovog pokretanja
     queue = load_json(QUEUE_FILE, [])
     history = load_json(HISTORY_FILE, [])
     try:
@@ -636,7 +639,24 @@ def ig_publish(image_url, caption):
     return ig_call("POST", f"{IG_USER_ID}/media_publish", creation_id=container)["id"]
 
 
+RUN_SLOT_FILE = ".run_slot.json"
+
+
 def current_slot():
+    """Termin ovog pokretanja. Određuje se jednom (na početku) i pamti u .run_slot.json,
+    da pravljenje objava (koje traje par minuta) ne pomeri pokretanje u sledeći termin."""
+    saved = load_json(RUN_SLOT_FILE, None)
+    if saved:
+        slot = next((s for s in SLOTS if s["time"] == saved["time"]), None)
+        if slot:
+            return slot, datetime.fromisoformat(saved["at"])
+    found = _detect_slot()
+    if found:
+        save_json(RUN_SLOT_FILE, {"time": found[0]["time"], "at": found[1].isoformat()})
+    return found
+
+
+def _detect_slot():
     """Termin čije je vreme prošlo pre manje od PUBLISH_WINDOW_HOURS sati."""
     now = now_local()
     best = None
