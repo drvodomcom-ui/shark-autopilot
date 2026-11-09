@@ -2,24 +2,10 @@ name: Shark Mindset Autopilot
 
 on:
   schedule:
-    # GitHub koristi UTC. Zimi je Beograd UTC+1, leti UTC+2 (tada sve ide sat kasnije).
-    # Jedno pokretanje za svaki termin objave (6 običnih + 10 vesti)
-    - cron: '2 6 * * *'   # 07:00 Beograd (zimsko vreme)
-    - cron: '2 7 * * *'   # 08:00 Beograd (zimsko vreme)
-    - cron: '2 8 * * *'   # 09:00 Beograd (zimsko vreme)
-    - cron: '2 9 * * *'   # 10:00 Beograd (zimsko vreme)
-    - cron: '32 10 * * *'   # 11:30 Beograd (zimsko vreme)
-    - cron: '2 11 * * *'   # 12:00 Beograd (zimsko vreme)
-    - cron: '2 12 * * *'   # 13:00 Beograd (zimsko vreme)
-    - cron: '32 13 * * *'   # 14:30 Beograd (zimsko vreme)
-    - cron: '32 14 * * *'   # 15:30 Beograd (zimsko vreme)
-    - cron: '32 15 * * *'   # 16:30 Beograd (zimsko vreme)
-    - cron: '2 16 * * *'   # 17:00 Beograd (zimsko vreme)
-    - cron: '2 17 * * *'   # 18:00 Beograd (zimsko vreme)
-    - cron: '2 18 * * *'   # 19:00 Beograd (zimsko vreme)
-    - cron: '2 19 * * *'   # 20:00 Beograd (zimsko vreme)
-    - cron: '2 20 * * *'   # 21:00 Beograd (zimsko vreme)
-    - cron: '2 21 * * *'   # 22:00 Beograd (zimsko vreme)
+    # GitHub često preskače ili kasni sa zakazanim pokretanjima, pa se bot pokreće
+    # na svakih 15 minuta (06:07–22:52 po Beogradu, zimsko vreme). Svako pokretanje
+    # samo proveri da li je došao neki termin i da li je već objavljen — duplih objava nema.
+    - cron: '7,22,37,52 5-21 * * *'
   workflow_dispatch:
 
 permissions:
@@ -62,10 +48,12 @@ jobs:
         env:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_CHANNEL_ID: ${{ secrets.BUFFER_CHANNEL_ID }}
           DRY_RUN: ${{ vars.DRY_RUN || 'false' }}
         run: python main.py publish
 
-      - name: Zakaži u Buffer-u (samo ako nema Instagram tokena)
+      - name: Zakaži u Buffer-u (samo ako Instagram API ne radi)
         env:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
