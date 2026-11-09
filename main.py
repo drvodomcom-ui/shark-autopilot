@@ -627,6 +627,23 @@ def ig_call(method, path, **params):
     raise RuntimeError(f"Instagram API greška: {json.dumps(last)[:400]}")
 
 
+_ig_ok_cache = {}
+
+
+def ig_ok():
+    """Da li Instagram API trenutno prihvata naš token (npr. Meta zna da blokira nalog)."""
+    if not (IG_TOKEN and IG_USER_ID):
+        return False
+    if "ok" not in _ig_ok_cache:
+        try:
+            ig_call("GET", f"{IG_USER_ID}/content_publishing_limit")
+            _ig_ok_cache["ok"] = True
+        except Exception as e:  # noqa: BLE001
+            print(f"Instagram API trenutno ne radi ({str(e)[:200]}) — koristim Buffer.")
+            _ig_ok_cache["ok"] = False
+    return _ig_ok_cache["ok"]
+
+
 def ig_publish(image_url, caption):
     container = ig_call("POST", f"{IG_USER_ID}/media", image_url=image_url, caption=caption)["id"]
     for _ in range(30):  # čekaj da Instagram obradi sliku
@@ -669,8 +686,9 @@ def _detect_slot():
 
 
 def cmd_publish():
-    if not (IG_TOKEN and IG_USER_ID):
-        print("Nema IG_ACCESS_TOKEN/IG_USER_ID — direktno objavljivanje je isključeno.")
+    use_buffer = not ig_ok()
+    if use_buffer and not (BUFFER_KEY and BUFFER_CHANNEL_ID):
+        print("Ni Instagram API ni Buffer nisu dostupni.")
         return
     found = current_slot()
     if not found:
@@ -704,7 +722,32 @@ def cmd_publish():
     if DRY_RUN:
         print(f"[DRY_RUN] Objavio bih sada ({slot['time']}): {pick['title']}")
         return
-    media_id = ig_publish(url, pick["caption"])
+    if use_buffer:
+        if not slot.get("news"):
+            return  # obične objave Buffer dobija unapred u koraku "schedule"
+        if buffer_scheduled_count() >= BUFFER_QUEUE_LIMIT:
+            print("Buffer red je pun — vest preskačem.")
+            return
+        due = now_local() + timedelta(minutes=5)
+        post = buffer_create_post(pick["caption"], url, pick["title"],
+                                  due.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z"))
+        pick.update(status="scheduled", buffer_id=post["id"], due_local=due.isoformat(),
+                    published_slot=f"{today} {slot['time']}")
+        save_json(QUEUE_FILE, queue)
+        print(f"Vest poslata preko Buffer-a: {pick['title']}")
+        return
+    try:
+        media_id = ig_publish(url, pick["caption"])
+    except Exception as e:  # noqa: BLE001
+        pick["fail_count"] = pick.get("fail_count", 0) + 1
+        pick["last_error"] = str(e)[:300]
+        save_json(QUEUE_FILE, queue)
+        print(f"Objava nije uspela (pokušaj {pick['fail_count']}/3): {e}")
+        if pick["fail_count"] >= 3:
+            pick["status"] = "failed"
+            save_json(QUEUE_FILE, queue)
+            raise
+        return  # sledeće pokretanje (za 15 min) pokušava ponovo
     pick["status"] = "published"
     pick["ig_media_id"] = media_id
     pick["published_slot"] = f"{today} {slot['time']}"
@@ -715,8 +758,8 @@ def cmd_publish():
 
 # ---------------- Komanda: schedule ----------------
 def cmd_schedule():
-    if IG_TOKEN and IG_USER_ID:
-        print("Direktno objavljivanje je uključeno — Buffer se ne koristi.")
+    if ig_ok():
+        print("Instagram API radi — Buffer se ne koristi.")
         return
     queue = load_json(QUEUE_FILE, [])
     pending = [q for q in queue if q["status"] == "pending" and q["key"] != "vesti"]
