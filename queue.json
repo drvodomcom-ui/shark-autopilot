@@ -232,5 +232,17 @@
     "ig_media_id": "17917800084496117",
     "published_slot": "2026-11-09 16:30",
     "published_at": "2026-11-09T17:03:06.384385+01:00"
+  },
+  {
+    "id": "20261109-193609-vesti",
+    "key": "vesti",
+    "slot": "19:00",
+    "for_slot": "2026-11-09 19:00",
+    "title": "NBS: Dinar je stabilan, Poštanska štedionica posluje redovno",
+    "caption": "🇷🇸 Srbija | Potvrđena stabilnost domaće valute i rad banke.\n\nNarodna banka Srbije je objavila da je kurs dinara stabilan. U saopštenju se navodi i da Poštanska štedionica posluje redovno.\n\nŠta to znači za tebe:\nKurs domaće valute ostaje čvrst i stabilan, a poslovanje pomenute banke odvija se bez ikakvih smetnji.\n\nZapratite profil za najvažnije finansijske vesti tokom dana.\n\nIzvor: beta.rs\n\n#ekonomija #vesti #srbija #finansije #nbs #dinar #kurs #banke #poslovanje",
+    "topic": "Stabilnost kursa dinara i redovno poslovanje Poštanske štedionice",
+    "image": "posts/20261109-193609/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-09T19:36:09.408200+01:00"
   }
 ]
