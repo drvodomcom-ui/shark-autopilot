@@ -261,5 +261,71 @@
     "buffer_id": "6af2171beb73f8e77f5184a3",
     "due_local": "2026-11-09T20:00:23.313748+01:00",
     "published_slot": "2026-11-09 19:00"
+  },
+  {
+    "id": "20261110-030044-1",
+    "key": "motivacija",
+    "slot": "08:00",
+    "title": "Probudi se, danas je tvoja lova",
+    "caption": "Svaki dan je šansa da se približiš vrhu.\n\nZapočni jutro pisanjem tri konkretna cilja – šta želiš da postigneš do kraja dana, koja je tvoja najveća poslovna akcija i kako ćeš meriti napredak. Zatvori oči, vizualizuj uspeh i odmah pređi na prvi korak. Ne čekaj savršen trenutak, on ne postoji – akcija je jedini motor.\n\nSačuvaj ovu objavu, podeli sa ekipom i u komentar napiši svoj jutarnji cilj.\n\n#motivacija #mindset #uspeh #biznis #šef #život #inspiracija #goalsetting",
+    "topic": "jutarnja motivacija i akcija",
+    "image": "posts/20261110-030044/1-motivacija.jpg",
+    "status": "pending",
+    "created": "2026-11-10T03:00:44.362614+01:00"
+  },
+  {
+    "id": "20261110-030044-2",
+    "key": "novac",
+    "slot": "11:30",
+    "title": "Planiraj budžet, kontroliraj svoje troškove",
+    "caption": "Novac ne radi sam – ti ga moraš usmeriti.\n\nPrimeni pravilo 50/30/20: 50 % prihoda ide na osnovne potrebe (stan, računi), 30 % na želje (hobi, večere) i 20 % na štednju ili investicije. Na primer, ako tvoj neto mesečni prihod iznosi 200.000 din, izdvoji 100.000 din za troškove, 60.000 din za uživanje i 40.000 din za budućnost. Prati sve transakcije u aplikaciji ili beležnici – transparentnost otkriva curenje novca.\n\nSačuvaj post, označi prijatelja koji treba da vidi ovo i u komentar napiši svoj trenutni procenat štednje.\n\n#novac #finansije #budžet #štednja #upravljanje #dinar #saveti #budgeting",
+    "topic": "praktična pravila budžetiranja",
+    "image": "posts/20261110-030044/2-novac.jpg",
+    "status": "pending",
+    "created": "2026-11-10T03:00:44.381965+01:00"
+  },
+  {
+    "id": "20261110-030044-3",
+    "key": "investiranje",
+    "slot": "13:00",
+    "title": "Ne stavljaj sve jaja u jednu korpu",
+    "caption": "Jedna greška može da ti pojede sve prinose.\n\nDiversifikacija znači raspodelu kapitala među različite klase imovine – akcije, obveznice, nekretnine i plemenite metale. Ako uložiš 100.000 din, razmisli o 40 % u akcije ili ETF‑ove, 30 % u državne ili korporativne obveznice, 20 % u fond za nekretnine (REIT) i 10 % u zlato. Ovaj miks ublažava rizik: pad jedne klase ne uzrokuje totalni gubitak. Redovno proveravaj proporcije i prilagođavaj ih prema svom horizontu i toleranciji na rizik.\n\nSačuvaj ovu smernicu, podeli sa onima koji tek počinju i u komentar napiši koju klasu imovine želiš da povećaš.\n\n#investiranje #diversifikacija #finansijskapismenost #pasivanprihod #akcije #obveznice #nekretnine #zlato",
+    "topic": "osnovni princip diversifikacije",
+    "image": "posts/20261110-030044/3-investiranje.jpg",
+    "status": "pending",
+    "created": "2026-11-10T03:00:44.401273+01:00"
+  },
+  {
+    "id": "20261110-030044-4",
+    "key": "prodaja",
+    "slot": "14:30",
+    "title": "Pitaj, ne prodaj – ključ za zatvaranje",
+    "caption": "Prodaja nije o tome šta ti kažeš, već šta kupac čuje.\n\nKoristi tehniku „pitanja posledica“: postavi pitanje koje otkriva šta će se desiti ako kupac ne reši svoj problem. Na primer, „Kako bi vaše poslovanje izgledalo za tri meseca ako ne optimizujete proces nabavke?“ Ovakvo pitanje aktivira emotivni odgovor i otvara prostor za tvoje rešenje. Nakon što kupac prepozna posledice, predstavi svoj proizvod kao način da izbegne te negativne posledice.\n\nSačuvaj post, označi kolegu prodavca i u komentar napiši primer pitanja koje si koristio.\n\n#prodaja #pregovaranje #tehnike #biznis #uspeh #sales #closing #strategija",
+    "topic": "tehnika pitanja posledica",
+    "image": "posts/20261110-030044/4-prodaja.jpg",
+    "status": "pending",
+    "created": "2026-11-10T03:00:44.423667+01:00"
+  },
+  {
+    "id": "20261110-030044-5",
+    "key": "psihologija",
+    "slot": "18:00",
+    "title": "Da li si znao da mentalni račun varira?",
+    "caption": "Naš mozak deli novac na mentalne kase i to nas skupi.\n\nEfekat mentalnog računa (mental accounting) podrazumeva da tretiramo novac različito u zavisnosti od izvora – bonusi, nagrade ili redovni prihod. Tako, bonus od 20.000 din često trošimo na luksuz, dok bi isti iznos iz redovne plate štedeli. Prepoznaj ovu podsvest i primeni pravilo – sve dodatke tretiraj kao dodatni kapital za štednju ili investicije.\n\nSačuvaj savjet, podeli sa prijateljima i u komentar napiši kako planiraš da „re‑kategorizuješ“ svoj bonus.\n\n#psihologija #biznis #novac #mentalaccounting #behaviouraleconomics #finansijskapsihologija #saveti #mindset",
+    "topic": "mentalni račun i trošenje",
+    "image": "posts/20261110-030044/5-psihologija.jpg",
+    "status": "pending",
+    "created": "2026-11-10T03:00:44.448404+01:00"
+  },
+  {
+    "id": "20261110-030044-6",
+    "key": "izazov",
+    "slot": "21:00",
+    "title": "Koji je tvoj najveći finansijski cilj za sledećih 6 meseci?",
+    "caption": "Veče je pravo vreme da se osvrneš na svoje planove.\n\nPostavi sebi konkretan, merljiv cilj – da li želiš da uštediš 100.000 din, otplatiš kredit, ili pokreneš novi proizvod? Zapiši ga, razradi tri akcijska koraka i podijeli ga u komentarima. Najaktivniji učesnici dobiće personalizovani feedback od SHARK MINDSET‑a.\n\nKomentariši ispod, označi prijatelja koji treba da učestvuje i sačuvaj ovu objavu da bi pratio svoj napredak.\n\n#izazov #ciljevi #finansije #motivacija #planiranje #uspeh #growth #sharkmindset",
+    "topic": "večernji izazov za publiku",
+    "image": "posts/20261110-030044/6-izazov.jpg",
+    "status": "pending",
+    "created": "2026-11-10T03:00:44.470232+01:00"
   }
 ]
