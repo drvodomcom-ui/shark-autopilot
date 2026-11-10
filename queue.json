@@ -401,5 +401,17 @@
     "image": "posts/20261110-142853/6-izazov.jpg",
     "status": "pending",
     "created": "2026-11-10T14:28:53.349129+01:00"
+  },
+  {
+    "id": "20261110-194726-vesti",
+    "key": "vesti",
+    "slot": "19:00",
+    "for_slot": "2026-11-10 19:00",
+    "title": "Globalni pad cena nafte i uticaj na inflaciju",
+    "caption": "🌐 Svet: Oštar pad cena nafte na svetskom tržištu.\n\nCene sirove nafte na globalnom nivou ubrzano opadaju, uz prognoze da bi se taj pad mogao nastaviti u budućnosti. Ovakva kretanja na tržištu energenata imaju direktan značaj za kretanje opšte stope inflacije.\n\nŠta to znači za tebe:\nNiže cene nafte obično vode ka smanjenju troškova transporta i proizvodnje, što može usporiti rast cena proizvoda i usluga koje svakodnevno kupuješ. Ovo može doneti olakšanje tvom kućnom budžetu kroz stabilnije cene na pumpama.\n\nZapratite @20shark26 za najnovije vesti iz sveta ekonomije.\nIzvor: Barron's\n\n#ekonomija #vesti #nafta #inflacija #finansije #novac #tržište #svet #gorivo #cene",
+    "topic": "Pad svetskih cena nafte i njihov uticaj na inflaciju",
+    "image": "posts/20261110-194726/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-10T19:47:26.132998+01:00"
   }
 ]
