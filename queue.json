@@ -416,5 +416,17 @@
     "ig_media_id": "17972366888960825",
     "published_slot": "2026-11-10 19:00",
     "published_at": "2026-11-10T19:47:42.345308+01:00"
+  },
+  {
+    "id": "20261110-200452-vesti",
+    "key": "vesti",
+    "slot": "20:00",
+    "for_slot": "2026-11-10 20:00",
+    "title": "Er Srbija povećava broj letova do Beča",
+    "caption": "🇷🇸 Srbija | Er Srbija povećava broj letova prema Beču.\n\nDomaća avio-kompanija Er Srbija najavila je povećanje učestalosti letova na relaciji do Beča. Od 22. decembra letovi na ovoj liniji odvijaće se četiri puta nedeljno.\n\nŠta to znači za tebe:\nPutnici dobijaju više opcija i fleksibilniji raspored za planiranje putovanja i poseta Beču krajem godine.\n\nZapratite profil za najvažnije ekonomske vesti tokom dana.\nIzvor: Newsmax Balkans\n\n#ekonomija #vesti #srbija #finansije #ersrbija #bec #avijacija #putovanja #biznis",
+    "topic": "Povećanje broja letova Er Srbije do Beča",
+    "image": "posts/20261110-200452/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-10T20:04:52.776231+01:00"
   }
 ]
