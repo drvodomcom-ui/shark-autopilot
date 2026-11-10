@@ -2,9 +2,9 @@ name: Shark Mindset Autopilot
 
 on:
   schedule:
-    # GitHub često preskače ili kasni sa zakazanim pokretanjima, pa se bot pokreće
-    # na svakih 15 minuta (06:07–22:52 po Beogradu, zimsko vreme). Svako pokretanje
-    # samo proveri da li je došao neki termin i da li je već objavljen — duplih objava nema.
+    # GitHub često preskače zakazana pokretanja. Zato svako pokretanje radi 50 minuta
+    # i na svakih 5 minuta proverava termine; sledeće čeka u redu (concurrency).
+    # Pokretanja: 06:07–22:52 po Beogradu (zimsko vreme). Duplih objava nema.
     - cron: '7,22,37,52 5-21 * * *'
   workflow_dispatch:
 
@@ -18,6 +18,7 @@ concurrency:
 jobs:
   autopilot:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Preuzmi kod
         uses: actions/checkout@v4
@@ -30,41 +31,30 @@ jobs:
       - name: Instaliraj biblioteke
         run: pip install -r requirements.txt
 
-      - name: Napravi nove objave (tekst + slike + vesti)
+      - name: Autopilot (radi 50 minuta, proverava na svakih 5 minuta)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: python main.py generate
-
-      - name: Sačuvaj slike u repo
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_CHANNEL_ID: ${{ secrets.BUFFER_CHANNEL_ID }}
+          DRY_RUN: ${{ vars.DRY_RUN || 'false' }}
         run: |
           git config user.name "shark-autopilot"
           git config user.email "actions@users.noreply.github.com"
-          git add posts queue.json history.json
-          git commit -m "Nove objave $(date -u +'%Y-%m-%d %H:%M')" || echo "Nema novih objava"
-          git push
-
-      - name: Objavi direktno na Instagram
-        env:
-          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
-          IG_USER_ID: ${{ secrets.IG_USER_ID }}
-          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
-          BUFFER_CHANNEL_ID: ${{ secrets.BUFFER_CHANNEL_ID }}
-          DRY_RUN: ${{ vars.DRY_RUN || 'false' }}
-        run: python main.py publish
-
-      - name: Zakaži u Buffer-u (samo ako Instagram API ne radi)
-        env:
-          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
-          IG_USER_ID: ${{ secrets.IG_USER_ID }}
-          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
-          BUFFER_CHANNEL_ID: ${{ secrets.BUFFER_CHANNEL_ID }}
-          DRY_RUN: ${{ vars.DRY_RUN || 'false' }}
-        run: python main.py schedule
-
-      - name: Sačuvaj status
-        if: always()
-        run: |
-          git add queue.json || true
-          git commit -m "Status $(date -u +'%Y-%m-%d %H:%M')" || echo "Bez promena"
-          git push || true
+          FAIL=0
+          END=$((SECONDS + 3000))
+          while true; do
+            git pull -q --rebase origin master || true
+            python main.py generate || { echo "::warning::generate nije uspeo"; }
+            git add posts queue.json history.json
+            git commit -qm "Nove objave $(date -u +'%Y-%m-%d %H:%M')" && git push -q || true
+            python main.py publish || { echo "::error::publish nije uspeo"; FAIL=1; }
+            python main.py schedule || { echo "::warning::schedule nije uspeo"; }
+            git add queue.json
+            git commit -qm "Status $(date -u +'%Y-%m-%d %H:%M')" && git push -q || true
+            [ $SECONDS -ge $END ] && break
+            sleep 300
+          done
+          exit $FAIL
