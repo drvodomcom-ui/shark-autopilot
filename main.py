@@ -697,6 +697,19 @@ def cmd_publish():
     slot, slot_time = found
     queue = load_json(QUEUE_FILE, [])
     today = slot_time.date().isoformat()
+    if not use_buffer:
+        # Instagram API radi: objave koje su ranije predate Buffer-u vrati botu
+        changed = False
+        for q in queue:
+            if q["status"] == "scheduled":
+                q["old_buffer_id"] = q.pop("buffer_id", None)
+                q.pop("due_local", None)
+                q.pop("published_slot", None)
+                q["status"] = "expired" if q["key"] == "vesti" else "pending"
+                changed = True
+        if changed:
+            save_json(QUEUE_FILE, queue)
+            print("Objave iz Buffer-a su vraćene botu.")
     if any(q.get("published_slot") == f"{today} {slot['time']}" for q in queue):
         print(f"Termin {slot['time']} je već objavljen danas.")
         return
