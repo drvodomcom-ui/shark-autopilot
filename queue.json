@@ -424,5 +424,17 @@
     "ig_media_id": "18182864167433672",
     "published_slot": "2026-11-10 20:00",
     "published_at": "2026-11-10T20:05:10.045932+01:00"
+  },
+  {
+    "id": "20261110-220411-vesti",
+    "key": "vesti",
+    "slot": "22:00",
+    "for_slot": "2026-11-10 22:00",
+    "title": "Rast BDP-a Srbije i skok inflacije",
+    "caption": "🇷🇸 Srbija | Zabeležen rast BDP-a, ali i porast inflacije.\n\nPrema analizi MAT-a, bruto domaći proizvod Srbije u trećem tromesečju ostvario je rast od četiri odsto. U istom periodu zabeležen je i rast inflacije, koja je dostigla 4,1 odsto.\n\nŠta to znači za tebe:\nOvi pokazatelji daju uvid u trenutno stanje domaće privrede i zvaničnu stopu rasta cena.\n\nZapratite profil za više ekonomskih vesti svakog dana.\nIzvor: Danas\n\n#ekonomija #vesti #srbija #finansije #bdp #inflacija #privreda #mat",
+    "topic": "Rast BDP-a i inflacije u trećem tromesečju",
+    "image": "posts/20261110-220411/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-10T22:04:11.213499+01:00"
   }
 ]
