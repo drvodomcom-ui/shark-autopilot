@@ -442,5 +442,17 @@
     "ig_media_id": "18137660488646480",
     "published_slot": "2026-11-10 22:00",
     "published_at": "2026-11-10T22:04:23.324937+01:00"
+  },
+  {
+    "id": "20261111-210002-vesti",
+    "key": "vesti",
+    "slot": "20:00",
+    "for_slot": "2026-11-11 20:00",
+    "title": "Nema signala za promenu kamatne stope NBS",
+    "caption": "🇷🇸 Srbija: Tržište ne nagoveštava promenu kamatne stope NBS.\n\nTrenutna kretanja na tržištu ukazuju na to da nema potrebe za korekcijom referentne kamatne stope Narodne banke Srbije. Uslovi u finansijskom sektoru održavaju postojeći nivo stope nepromenjenim.\n\nŠta to znači za tebe:\nStabilna referentna kamatna stopa pruža izvesnost i sprečava iznenadne promene uslova zaduživanja na tržištu.\n\nZapratite @20shark26 za najvažnije ekonomske vesti tokom dana.\nIzvor: Biznis.rs\n\n#ekonomija #vesti #srbija #nbs #kamatnestope #finansije #biznis #novac",
+    "topic": "Tržište ne signalizira potrebu za promenom kamatne stope NBS",
+    "image": "posts/20261111-210002/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-11T21:00:02.491481+01:00"
   }
 ]
