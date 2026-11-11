@@ -369,8 +369,10 @@
     "caption": "Kreditne kartice i dozvoljeni minus su najskuplji novac koji ikada možeš koristiti. Ako uđeš u minus od 50.000 dinara sa kamatom od 25%, ti godišnje bacaš 12.500 dinara ni na šta. To je novac koji si mogao uložiti ili uštedeti, a umesto toga si ga poklonio banci za trenutno zadovoljstvo. Tvoj prvi korak ka finansijskoj slobodi je eliminacija dugova sa visokom kamatom. Prvo otplati ono što te najviše košta, pa tek onda razmišljaj o kupovini novih stvari. Kontroliši svoj novac pre nego što on počne da kontroliše tebe i tvoju budućnost.\n\nPodeli ovo sa nekim ko želi bolje finansije.\n\n#novac #finansije #stednja #dugovi #banke #srbija #licnefinansije #investiranje #zarada #uspeh",
     "topic": "Eliminacija dugova sa visokom kamatnom stopom",
     "image": "posts/20261110-142853/2-novac.jpg",
-    "status": "pending",
-    "created": "2026-11-10T14:28:53.272413+01:00"
+    "status": "scheduled",
+    "created": "2026-11-10T14:28:53.272413+01:00",
+    "buffer_id": "6af4cab0b459c6001d4bb2d4",
+    "due_local": "2026-11-14T11:30:00+01:00"
   },
   {
     "id": "20261110-142853-3",
