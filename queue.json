@@ -412,8 +412,10 @@
     "caption": "Da li si znao da nuđenje previše opcija zapravo drastično smanjuje verovatnoću kupovine? Ovo se u psihologiji naziva paradoks izbora. Kada čoveku ponudiš 20 različitih rešenja, on često ne izabere nijedno jer se plaši da će pogrešiti. Isto pravilo važi i za tvoj radni dan – ako imaš 10 prioriteta, zapravo nemaš nijedan. Smanji izbor na maksimalno dve ili tri opcije za svoje klijente i fokusiraj se na jedan glavni cilj dnevno za sebe. Manje je skoro uvek više kada je u pitanju efikasno donošenje odluka i brza akcija.\n\nPodeli ovo u stori ako ti je bilo korisno.\n\n#psihologija #biznis #fokus #produktivnost #odluke #uspeh #mindset #prodaja #saveti #srbija #preduzetnistvo",
     "topic": "Paradoks izbora i uticaj na odlučivanje",
     "image": "posts/20261110-142853/5-psihologija.jpg",
-    "status": "pending",
-    "created": "2026-11-10T14:28:53.330017+01:00"
+    "status": "scheduled",
+    "created": "2026-11-10T14:28:53.330017+01:00",
+    "buffer_id": "6af62d04a01fb6efee4c2fd7",
+    "due_local": "2026-11-14T18:00:00+01:00"
   },
   {
     "id": "20261110-142853-6",
