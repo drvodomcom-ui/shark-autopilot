@@ -336,8 +336,10 @@
     "caption": "Naš mozak deli novac na mentalne kase i to nas skupi.\n\nEfekat mentalnog računa (mental accounting) podrazumeva da tretiramo novac različito u zavisnosti od izvora – bonusi, nagrade ili redovni prihod. Tako, bonus od 20.000 din često trošimo na luksuz, dok bi isti iznos iz redovne plate štedeli. Prepoznaj ovu podsvest i primeni pravilo – sve dodatke tretiraj kao dodatni kapital za štednju ili investicije.\n\nSačuvaj savjet, podeli sa prijateljima i u komentar napiši kako planiraš da „re‑kategorizuješ“ svoj bonus.\n\n#psihologija #biznis #novac #mentalaccounting #behaviouraleconomics #finansijskapsihologija #saveti #mindset",
     "topic": "mentalni račun i trošenje",
     "image": "posts/20261110-030044/5-psihologija.jpg",
-    "status": "pending",
-    "created": "2026-11-10T03:00:44.448404+01:00"
+    "status": "scheduled",
+    "created": "2026-11-10T03:00:44.448404+01:00",
+    "buffer_id": "6af62b2e7d05892ccea928ed",
+    "due_local": "2026-11-13T18:00:00+01:00"
   },
   {
     "id": "20261110-030044-6",
@@ -571,7 +573,10 @@
     "caption": "🇷🇸 Srbija / Rezerve zlata u Srbiji dostigle su rekordan nivo.\n\nSrbija trenutno poseduje više od 55 tona zlata u svojim rezervama. Prema najnovijim podacima, ukupna tržišna vrednost ovog plemenitog metala iznosi preko šest milijardi evra.\n\nŠta to znači za tebe:\nZlatne rezerve služe kao garant ekonomske stabilnosti države i sigurnosti domaćeg finansijskog sistema. Visok nivo rezervi pruža dodatnu zaštitu nacionalnoj ekonomiji u slučaju globalnih tržišnih potresa.\n\nZaprati @20shark26 za najnovije ekonomske vesti tokom dana.\nIzvor: B92\n\n#ekonomija #vesti #srbija #zlato #finansije #nbs #novac #ekonomskastabilnost #bankarstvo",
     "topic": "Ukupna količina i tržišna vrednost zlatnih rezervi Srbije",
     "image": "posts/20261112-221000/vesti.jpg",
-    "status": "pending",
-    "created": "2026-11-12T22:10:00.384286+01:00"
+    "status": "scheduled",
+    "created": "2026-11-12T22:10:00.384286+01:00",
+    "buffer_id": "6af62b2cc71c605d9eacc723",
+    "due_local": "2026-11-12T22:15:04.659881+01:00",
+    "published_slot": "2026-11-12 22:00"
   }
 ]
