@@ -549,5 +549,17 @@
     "image": "posts/20261111-210603/6-izazov.jpg",
     "status": "pending",
     "created": "2026-11-11T21:06:03.971681+01:00"
+  },
+  {
+    "id": "20261112-153555-vesti",
+    "key": "vesti",
+    "slot": "15:30",
+    "for_slot": "2026-11-12 15:30",
+    "title": "NBS podigla referentnu kamatnu stopu na šest odsto",
+    "caption": "🇷🇸 Srbija | NBS povećala referentnu kamatnu stopu.\n\nNarodna banka Srbije donela je odluku o povećanju referentne kamatne stope na nivo od šest odsto. Razlog za ovaj potez centralne banke jeste rizik od daljeg rasta inflacije.\n\nŠta to znači za tebe:\nOva odluka predstavlja direktnu reakciju nadležnih na opasnost od dodatnog skoka cena u zemlji.\n\nZapratite @20shark26 za najnovije ekonomske vesti tokom dana.\n\nIzvor: РТС\n\n#ekonomija #vesti #srbija #finansije #nbs #kamate #inflacija",
+    "topic": "NBS povećala referentnu kamatnu stopu na šest odsto",
+    "image": "posts/20261112-153555/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-12T15:35:55.725479+01:00"
   }
 ]
