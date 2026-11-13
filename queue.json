@@ -724,5 +724,17 @@
     "image": "posts/20261113-213342/6-izazov.jpg",
     "status": "pending",
     "created": "2026-11-13T21:33:42.681141+01:00"
+  },
+  {
+    "id": "20261113-220445-vesti",
+    "key": "vesti",
+    "slot": "22:00",
+    "for_slot": "2026-11-13 22:00",
+    "title": "Inflacija u Srbiji u oktobru ubrzala na 4,4 odsto",
+    "caption": "🇷🇸 Srbija / Inflacija u oktobru dostigla 4,4 odsto.\n\nStopa inflacije u Srbiji ubrzala je tokom oktobra na 4,4 procenta. Glavni pokretači ovog rasta cena bili su hrana i gorivo.\n\nŠta to znači za tebe:\nRast cena hrane i goriva direktno utiče na kućni budžet i povećava svakodnevne troškove.\n\nZapratite profil za najvažnije ekonomske vesti tokom dana.\nIzvor: NIN.rs\n\n#ekonomija #vesti #srbija #finansije #inflacija #cene #hrana #gorivo",
+    "topic": "Ubrzanje inflacije u Srbiji u oktobru na 4,4 odsto",
+    "image": "posts/20261113-220445/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-13T22:04:45.550501+01:00"
   }
 ]
