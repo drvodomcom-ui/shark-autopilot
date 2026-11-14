@@ -824,5 +824,17 @@
     "image": "posts/20261114-191251/6-izazov.jpg",
     "status": "pending",
     "created": "2026-11-14T19:12:51.166372+01:00"
+  },
+  {
+    "id": "20261114-231734-vesti",
+    "key": "vesti",
+    "slot": "22:00",
+    "for_slot": "2026-11-14 22:00",
+    "title": "Počela prijava za novčanu isplatu 6.000 dinara",
+    "caption": "🇷🇸 Srbija: Zvanično počela prijava za novčanu isplatu.\n\nOtvoren je proces prijavljivanja građana za dobijanje iznosa od 6.000 dinara. Objavljena su uputstva koja objašnjavaju tačan postupak i korake kako se prijaviti.\n\nŠta to znači za tebe:\nMožeš pratiti navedene korake i podneti prijavu kako bi ostvario pravo na isplatu.\n\nZapratite @20shark26 za najvažnije ekonomske vesti tokom dana.\nIzvor: Danas\n\n#ekonomija #vesti #srbija #finansije #novac #isplata #prijava #sharkmindset",
+    "topic": "Početak prijave za novčanu isplatu od 6.000 dinara",
+    "image": "posts/20261114-231734/vesti.jpg",
+    "status": "pending",
+    "created": "2026-11-14T23:17:34.315221+01:00"
   }
 ]
