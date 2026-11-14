@@ -644,8 +644,10 @@
     "caption": "Kada klijentu pošalješ poruku sa pitanjem da li ima vremena za sastanak, daješ mu lak izlaz da te odbije. Umesto toga, primeni tehniku dvostrukog izbora. Nikada ne pitaj da li je zainteresovan, već ponudi dve konkretne opcije. Na primer: Da li vam više odgovara kratak poziv u utorak u 10h ili četvrtak u 14h? Njegov mozak se automatski fokusira na izbor između dve Ponuđene opcije umesto na razmišljanje o odbijanju. Ova jednostavna promena u komunikaciji drastično povećava broj uspešno zakazanih sastanaka i zatvorenih prodaja.\n\nSačuvaj ovaj savet i primeni ga u sledećem mejlu.\n\n#prodaja #pregovori #biznis #komunikacija #uspeh #psihologija #vestine #klijenti",
     "topic": "Tehnika dvostrukog izbora u pregovaranju",
     "image": "posts/20261112-221752/4-prodaja.jpg",
-    "status": "pending",
-    "created": "2026-11-12T22:17:52.444867+01:00"
+    "status": "scheduled",
+    "created": "2026-11-12T22:17:52.444867+01:00",
+    "buffer_id": "6af8df35918fe79d2ea97c16",
+    "due_local": "2026-11-16T14:30:00+01:00"
   },
   {
     "id": "20261112-221752-5",
