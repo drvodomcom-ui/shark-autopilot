@@ -290,10 +290,11 @@
     "title": "Planiraj budžet, kontroliraj svoje troškove",
     "caption": "Novac ne radi sam – ti ga moraš usmeriti.\n\nPrimeni pravilo 50/30/20: 50 % prihoda ide na osnovne potrebe (stan, računi), 30 % na želje (hobi, večere) i 20 % na štednju ili investicije. Na primer, ako tvoj neto mesečni prihod iznosi 200.000 din, izdvoji 100.000 din za troškove, 60.000 din za uživanje i 40.000 din za budućnost. Prati sve transakcije u aplikaciji ili beležnici – transparentnost otkriva curenje novca.\n\nSačuvaj post, označi prijatelja koji treba da vidi ovo i u komentar napiši svoj trenutni procenat štednje.\n\n#novac #finansije #budžet #štednja #upravljanje #dinar #saveti #budgeting",
     "topic": "praktična pravila budžetiranja",
-    "image": "posts/20261110-030044/2-novac.jpg",
+    "image": "posts/20261110-030044/2-novac-ai.jpg",
     "status": "pending",
     "created": "2026-11-10T03:00:44.381965+01:00",
-    "old_buffer_id": "6af4c950b933477d281eb8e5"
+    "old_buffer_id": "6af4c950b933477d281eb8e5",
+    "ai_bg": true
   },
   {
     "id": "20261110-030044-3",
