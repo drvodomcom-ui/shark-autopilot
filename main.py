@@ -64,8 +64,9 @@ SLOTS = [
 LABELS = {s["key"]: s["label"] for s in SLOTS}
 LABELS["vesti"] = "EKONOMSKE VESTI"
 NEWS_TIMES = []   # vesti isključene (jedna objava dnevno)
-SLOTS = [s for s in SLOTS if s["key"] == "novac"]   # jedna objava dnevno
-SLOTS[0]["time"] = "18:00"
+# 3 objave dnevno = 21 nedeljno (tačno besplatni Buffer limit; daleko ispod Instagram API limita od 50–100/24h)
+_PICK = {"motivacija": "08:00", "novac": "13:00", "prodaja": "18:00"}
+SLOTS = [dict(s, time=_PICK[s["key"]]) for s in SLOTS if s["key"] in _PICK]
 REGULAR_SLOTS = list(SLOTS)
 SLOTS = sorted(SLOTS + [{"time": t, "key": "vesti", "label": "EKONOMSKE VESTI", "news": True,
                          "brief": "Jedna važna ekonomska vest."} for t in NEWS_TIMES], key=lambda x: x["time"])
@@ -879,7 +880,7 @@ def cmd_schedule():
         url = f"https://raw.githubusercontent.com/{REPO}/{sha}/{item['image']}"
         if not wait_public(url):
             raise RuntimeError(f"Slika nije javno dostupna: {url} (repo mora biti javan)")
-        due = next_due(REGULAR_SLOTS[0]["time"], taken)
+        due = min(next_due(s["time"], taken) for s in REGULAR_SLOTS)
         due_utc = due.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
         if DRY_RUN:
             print(f"[DRY_RUN] {due:%d.%m. %H:%M} — {item['title']}")
