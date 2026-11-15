@@ -696,8 +696,10 @@
     "caption": "Mali troškovi ne deluju strašno dok ne sabereš njihov godišnji uticaj na tvoj novčanik. Da li znaš koliko novca gubiš na zaboravljene pretplate, aplikacije i članarine koje ne koristiš?\n\nUradi jednostavan audit danas. Pogledaj izvod iz banke i pronađi sve automatske naplate. Ako plaćaš striming servis od 1.200 RSD, aplikaciju od 1.500 RSD i teretanu od 3.500 RSD u koju ne ideš, to je 6.200 RSD mesečno. Na godišnjem nivou to je 74.400 RSD koje gubiš bez ikakve koristi. Otkaži nepotrebno i taj novac usmeri u lični štedni fond.\n\nPodeli ovaj savet sa nekim kome je potrebna finansijska disciplina.\n\n#novac #finansije #budzet #stednja #biznis #pametno #srbija #balkan #uspeh #investiranje",
     "topic": "Revizija mesečnih pretplata i fiksnih rashoda",
     "image": "posts/20261113-213342/2-novac.jpg",
-    "status": "pending",
-    "created": "2026-11-13T21:33:42.623125+01:00"
+    "status": "scheduled",
+    "created": "2026-11-13T21:33:42.623125+01:00",
+    "buffer_id": "6afa03614f0276ab94596709",
+    "due_local": "2026-11-17T18:00:00+01:00"
   },
   {
     "id": "20261113-213342-3",
@@ -707,8 +709,10 @@
     "caption": "Ulaganje u jednu firmu donosi rizik da izgubiš sve ako ta kompanija propadne. Indeksni fond rešava taj problem na jednostavan način.\n\nZamisli da umesto kupovine jedne jabuke kupiš ceo voćnjak u kom se nalazi stotine različitih stabala. Indeksni fond je finansijska korpa koja obuhvata stotine najvećih svetskih kompanija odjednom. Kada kupiš udeo u takvom fondu, tvoj novac je automatski raspoređen. Ako jedna kompanija posustane, ostale jake kompanije guraju celokupnu vrednost napred. To je pasivan način da pratiš rast globalne ekonomije bez dnevne analize pojedinačnih akcija.\n\nSačuvaj ovaj post kao podsetnik za osnove pametnog ulaganja.\n\n#investiranje #finansije #novac #biznis #pametno #uspeh #ekonomija #balkan #srbija #zarada",
     "topic": "Osnovi indeksnih fondova za početnike",
     "image": "posts/20261113-213342/3-investiranje.jpg",
-    "status": "pending",
-    "created": "2026-11-13T21:33:42.637244+01:00"
+    "status": "scheduled",
+    "created": "2026-11-13T21:33:42.637244+01:00",
+    "buffer_id": "6afa036255ad64be505117ab",
+    "due_local": "2026-11-18T18:00:00+01:00"
   },
   {
     "id": "20261113-213342-4",
