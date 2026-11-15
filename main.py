@@ -15,7 +15,10 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import requests
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
+from urllib.parse import quote
+import io
+import random
 
 # ---------------- Podešavanja ----------------
 TZ = ZoneInfo("Europe/Belgrade")
@@ -58,6 +61,8 @@ SLOTS = [
     {"time": "21:00", "key": "izazov", "label": "VEČERNJI IZAZOV",
      "brief": "Večernje pitanje ili izazov za publiku koje podstiče komentare; naslov je pitanje."},
 ]
+LABELS = {s["key"]: s["label"] for s in SLOTS}
+LABELS["vesti"] = "EKONOMSKE VESTI"
 NEWS_TIMES = []   # vesti isključene (jedna objava dnevno)
 SLOTS = [s for s in SLOTS if s["key"] == "novac"]   # jedna objava dnevno
 SLOTS[0]["time"] = "18:00"
@@ -109,10 +114,11 @@ Pravila:
 - "title": naslov koji ide NA SLIKU, najviše 10 reči, bez hashtagova i bez emotikona.
 - "caption": opis 80–150 reči. Prvi red je jaka udica. Zatim vrednost (konkretno, praktično). Pa poziv na akciju (sačuvaj / podeli / komentariši). Na kraju prazan red i 8–12 hashtagova (mešavina srpskih i engleskih, npr. #novac #biznis #mindset #prodaja #finansije #motivacija #uspeh).
 - "topic": kratak opis teme (do 8 reči) za proveru ponavljanja.
+- "image_prompt": opis pozadinske AI slike na ENGLESKOM (15–30 reči): konkretna fotorealistična scena koja vizuelno prati temu (npr. ljudi u poslu, novac, grad, kancelarija, priroda, simboli uspeha), filmsko osvetljenje, tamni tonovi. Bez teksta, slova, logotipa i brendova na slici.
 - Bez izmišljenih statistika, procenata i lažnih citata. Ako citiraš, samo opšte poznate i proverljive citate sa tačnim autorom; inače bez citata.
 
 Vrati ISKLJUČIVO validan JSON ovog oblika, bez ikakvog drugog teksta:
-{{"posts": [{{"key": "motivacija", "title": "...", "caption": "...", "topic": "..."}}, ...]}}"""
+{{"posts": [{{"key": "motivacija", "title": "...", "caption": "...", "topic": "...", "image_prompt": "..."}}, ...]}}"""
 
 
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta"
@@ -266,7 +272,8 @@ def parse_posts(raw):
         caption = str(p.get("caption", "")).strip()
         topic = str(p.get("topic", "")).strip()
         if k in ACCENTS and k != "vesti" and title and len(caption) >= 200 and topic:
-            by_key[k] = {"key": k, "title": title, "caption": caption, "topic": topic}
+            by_key[k] = {"key": k, "title": title, "caption": caption, "topic": topic,
+                         "image_prompt": str(p.get("image_prompt", "")).strip()}
     if len(by_key) != len(REGULAR_SLOTS):
         raise ValueError(f"AI je vratio {len(by_key)}/5 ispravnih objava")
     return [by_key[s["key"]] for s in REGULAR_SLOTS]
@@ -317,17 +324,60 @@ def draw_fin(draw, cx, base_y, size, color):
     draw.line([(cx - size * 2, base_y), (cx + size * 2, base_y)], fill=color, width=6)
 
 
+AI_IMAGES = os.getenv("AI_IMAGES", "true").lower() == "true"
+STYLE = ("cinematic photorealistic, dramatic moody lighting, dark tones, high detail, "
+         "professional photography, no text, no letters, no watermark, no logo")
+
+
+def image_prompt_for(post):
+    base = post.get("image_prompt") or f"{post.get('topic') or post['title']}, business and money theme"
+    return f"{base}, {STYLE}"
+
+
+def ai_background(prompt, W=1080, H=1350):
+    """Besplatna AI slika (Pollinations, bez ključa). Vraća PIL sliku W×H ili None."""
+    for attempt in range(3):
+        seed = random.randint(1, 10_000_000)
+        url = (f"https://image.pollinations.ai/prompt/{quote(prompt[:600])}"
+               f"?width={W}&height={H}&nologo=true&model=flux&seed={seed}")
+        try:
+            r = requests.get(url, timeout=180)
+            if r.status_code == 200 and r.headers.get("content-type", "").startswith("image"):
+                im = Image.open(io.BytesIO(r.content)).convert("RGB")
+                w, h = im.size
+                im = im.crop((0, 0, w, int(h * 0.94)))  # odseci vodeni žig dole
+                return ImageOps.fit(im, (W, H), Image.LANCZOS, centering=(0.5, 0.4))
+            print(f"AI slika: odgovor {r.status_code}")
+        except Exception as e:  # noqa: BLE001
+            print(f"AI slika: greška ({e})")
+        time.sleep(10 * (attempt + 1))
+    return None
+
+
 def create_image(post, slot, out_path):
     W, H = 1080, 1350
     accent = ACCENTS[post["key"]]
-    img = Image.new("RGB", (W, H), (8, 10, 18))
-    d = ImageDraw.Draw(img)
-
-    # suptilan gradijent odozgo
-    for y in range(H):
-        t = y / H
-        c = (int(8 + 14 * (1 - t)), int(10 + 16 * (1 - t)), int(18 + 30 * (1 - t)))
-        d.line([(0, y), (W, y)], fill=c)
+    bg = ai_background(image_prompt_for(post), W, H) if AI_IMAGES else None
+    if bg is not None:
+        # AI pozadina + tamni sloj odozdo da naslov bude čitljiv
+        img = bg.filter(ImageFilter.GaussianBlur(0.6))
+        shade = Image.new("L", (W, H))
+        sd = ImageDraw.Draw(shade)
+        for y in range(H):
+            t = y / H
+            sd.line([(0, y), (W, y)], fill=int(90 + 150 * (t ** 1.4)))
+        img = Image.composite(Image.new("RGB", (W, H), (6, 8, 14)), img, shade)
+        d = ImageDraw.Draw(img)
+        post["ai_bg"] = True
+    else:
+        img = Image.new("RGB", (W, H), (8, 10, 18))
+        d = ImageDraw.Draw(img)
+        # suptilan gradijent odozgo
+        for y in range(H):
+            t = y / H
+            c = (int(8 + 14 * (1 - t)), int(10 + 16 * (1 - t)), int(18 + 30 * (1 - t)))
+            d.line([(0, y), (W, y)], fill=c)
+        post["ai_bg"] = False
 
     # okvir i gornja traka
     d.rectangle([40, 40, W - 40, H - 40], outline=accent, width=4)
@@ -337,12 +387,13 @@ def create_image(post, slot, out_path):
     d.rectangle([80, 90, 80 + lw + 40, 150], fill=accent)
     d.text((100, 98), label, font=lbl_font, fill=(8, 10, 18))
 
-    # peraje
-    draw_fin(d, W // 2, 330, 70, accent)
+    # peraje (samo na tamnoj pozadini bez AI slike)
+    if not post.get("ai_bg"):
+        draw_fin(d, W // 2, 330, 70, accent)
 
     # naslov — automatski smanjuje font dok ne stane
     title = post["title"].upper()
-    max_w, box_top, box_bottom = W - 200, 400, 1080
+    max_w, box_top, box_bottom = (W - 200, 560, 1110) if post.get("ai_bg") else (W - 200, 400, 1080)
     for size in range(110, 47, -4):
         tf = font("BebasNeue-Regular.ttf", size)
         lines = wrap_by_width(d, title, tf, max_w)
@@ -353,7 +404,8 @@ def create_image(post, slot, out_path):
     y = box_top + (box_bottom - box_top - total_h) // 2
     for line in lines:
         w = d.textlength(line, font=tf)
-        d.text(((W - w) / 2, y), line, font=tf, fill=(245, 245, 245))
+        d.text(((W - w) / 2, y), line, font=tf, fill=(245, 245, 245),
+               stroke_width=3 if post.get("ai_bg") else 0, stroke_fill=(0, 0, 0))
         y += line_h
 
     # podnožje
@@ -487,6 +539,26 @@ def cmd_generate():
     except Exception as e:  # noqa: BLE001
         print(f"Vesti nisu napravljene ({e}) — u ovom terminu ide obična objava.")
     pending = [q for q in queue if q["status"] == "pending" and q["key"] != "vesti"]
+    if AI_IMAGES:
+        # starije objave bez AI slike dobijaju novu sliku (najviše 3 po pokretanju)
+        redone = 0
+        for q in pending:
+            if q.get("ai_bg") or redone >= 3:
+                continue
+            post = {"key": q["key"], "title": q["title"], "topic": q.get("topic", ""),
+                    "image_prompt": q.get("image_prompt", "")}
+            new_rel = re.sub(r"(-ai)?\.jpg$", "-ai.jpg", q["image"])
+            create_image(post, {"label": LABELS.get(q["key"], "SHARK MINDSET")}, new_rel)
+            if post.get("ai_bg"):
+                q["image"], q["ai_bg"] = new_rel, True
+                redone += 1
+                print(f"Nova AI slika: {q['title']}")
+            else:
+                if os.path.exists(new_rel):
+                    os.remove(new_rel)
+                break  # AI servis trenutno ne radi — probaćemo kasnije
+        if redone:
+            save_json(QUEUE_FILE, queue)
     if len(pending) >= BACKLOG_TARGET:
         print(f"U rezervi već ima {len(pending)} objava — ne pravim nove.")
         return
@@ -504,6 +576,8 @@ def cmd_generate():
             "title": post["title"],
             "caption": post["caption"],
             "topic": post["topic"],
+            "image_prompt": post.get("image_prompt", ""),
+            "ai_bg": post.get("ai_bg", False),
             "image": rel,
             "status": "pending",
             "created": now_local().isoformat(),
