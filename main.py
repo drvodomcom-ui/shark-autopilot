@@ -58,7 +58,9 @@ SLOTS = [
     {"time": "21:00", "key": "izazov", "label": "VEČERNJI IZAZOV",
      "brief": "Večernje pitanje ili izazov za publiku koje podstiče komentare; naslov je pitanje."},
 ]
-NEWS_TIMES = ["07:00", "09:00", "10:00", "12:00", "15:30", "16:30", "17:00", "19:00", "20:00", "22:00"]
+NEWS_TIMES = []   # vesti isključene (jedna objava dnevno)
+SLOTS = [s for s in SLOTS if s["key"] == "novac"]   # jedna objava dnevno
+SLOTS[0]["time"] = "18:00"
 REGULAR_SLOTS = list(SLOTS)
 SLOTS = sorted(SLOTS + [{"time": t, "key": "vesti", "label": "EKONOMSKE VESTI", "news": True,
                          "brief": "Jedna važna ekonomska vest."} for t in NEWS_TIMES], key=lambda x: x["time"])
@@ -794,7 +796,7 @@ def cmd_schedule():
     taken = {q["due_local"] for q in queue if q.get("due_local")}
     # najstarije prvo, ali po redosledu termina u danu
     order = {s["time"]: i for i, s in enumerate(SLOTS)}
-    pending.sort(key=lambda q: (q["created"][:10], order[q["slot"]]))
+    pending.sort(key=lambda q: (q["created"][:10], order.get(q["slot"], 0)))
 
     done = 0
     for item in pending:
@@ -803,7 +805,7 @@ def cmd_schedule():
         url = f"https://raw.githubusercontent.com/{REPO}/{sha}/{item['image']}"
         if not wait_public(url):
             raise RuntimeError(f"Slika nije javno dostupna: {url} (repo mora biti javan)")
-        due = next_due(item["slot"], taken)
+        due = next_due(REGULAR_SLOTS[0]["time"], taken)
         due_utc = due.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
         if DRY_RUN:
             print(f"[DRY_RUN] {due:%d.%m. %H:%M} — {item['title']}")
